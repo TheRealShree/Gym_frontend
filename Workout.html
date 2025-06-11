@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Scheduler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .schedule-form {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(25px);
+            border-radius: 25px;
+            padding: 35px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .weekly-calendar {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(25px);
+            border-radius: 25px;
+            padding: 35px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        .section-title {
+            font-size: 1.6em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.95em;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .workout-type-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .workout-type-btn {
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .workout-type-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .workout-type-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .schedule-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .schedule-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .schedule-btn:hover::before {
+            left: 100%;
+        }
+
+        .schedule-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .week-nav {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .week-nav h3 {
+            font-size: 1.3em;
+            font-weight: 500;
+        }
+
+        .nav-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .week-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 12px;
+        }
+
+        .day-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 2px solid transparent;
+        }
+
+        .day-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .day-card.today {
+            border-color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .day-card.has-workout {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.3), rgba(39, 174, 96, 0.3));
+            border-color: rgba(46, 204, 113, 0.8);
+        }
+
+        .day-name {
+            font-size: 0.8em;
+            font-weight: 600;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .day-number {
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .day-workouts {
+            font-size: 0.75em;
+            opacity: 0.9;
+        }
+
+        .workout-dot {
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            margin: 2px auto;
+        }
+
+        .scheduled-list {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(25px);
+            border-radius: 25px;
+            padding: 35px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .workout-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .workout-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .workout-info {
+            flex: 1;
+        }
+
+        .workout-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .workout-details {
+            font-size: 0.9em;
+            opacity: 0.8;
+            display: flex;
+            gap: 15px;
+        }
+
+        .workout-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background: rgba(52, 152, 219, 0.8);
+            color: white;
+        }
+
+        .delete-btn {
+            background: rgba(231, 76, 60, 0.8);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.7;
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .week-calendar {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .workout-type-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .week-calendar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .workout-details {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="notification" style="
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #00ffdd;
+  color: #000;
+  padding: 15px 25px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #00ffddcc;
+  font-weight: 600;
+  display: none;
+  z-index: 10000;
+  ">
+  Workout is started!
+</div>
+
+    <div class="container">
+        <div class="header">
+            <h1>💪 Workout Scheduler</h1>
+            <p>Plan your fitness journey with smart scheduling</p>
+        </div>
+
+        <div class="main-grid">
+            <div class="schedule-form">
+                <h2 class="section-title">
+                    <span>📅</span>
+                    Schedule New Workout
+                </h2>
+
+                <form id="workoutForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="workoutDate">Date</label>
+                            <input type="date" id="workoutDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="workoutTime">Time</label>
+                            <input type="time" id="workoutTime" value="07:00" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Workout Type</label>
+                        <div class="workout-type-grid">
+                            <div class="workout-type-btn" data-type="cardio">🏃 Cardio</div>
+                            <div class="workout-type-btn" data-type="strength">🏋️ Strength</div>
+                            <div class="workout-type-btn" data-type="yoga">🧘 Yoga</div>
+                            <div class="workout-type-btn" data-type="hiit">⚡ HIIT</div>
+                            <div class="workout-type-btn" data-type="pilates">🤸 Pilates</div>
+                            <div class="workout-type-btn" data-type="swimming">🏊 Swimming</div>
+                        </div>
+                        <input type="hidden" id="workoutType" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="duration">Duration (minutes)</label>
+                            <input type="number" id="duration" min="15" max="180" value="60" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="intensity">Intensity</label>
+                            <select id="intensity" required>
+                                <option value="">Select Intensity</option>
+                                <option value="low">Low</option>
+                                <option value="moderate">Moderate</option>
+                                <option value="high">High</option>
+                                <option value="extreme">Extreme</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="notes">Workout Notes</label>
+                        <textarea id="notes" rows="3" placeholder="Goals, exercises, or special instructions..."></textarea>
+                    </div>
+
+                    <button type="submit" class="schedule-btn">
+                        <span>🚀 Schedule Workout</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="weekly-calendar">
+                <h2 class="section-title">
+                    <span>📆</span>
+                    Weekly View
+                </h2>
+                
+                <div class="week-nav">
+                    <h3 id="weekRange">June 2-8, 2025</h3>
+                    <div class="nav-btns">
+                        <button class="nav-btn" id="prevWeek">‹</button>
+                        <button class="nav-btn" id="nextWeek">›</button>
+                    </div>
+                </div>
+
+                <div class="week-calendar" id="weekCalendar">
+                    <!-- Days will be generated here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="scheduled-list">
+            <h2 class="section-title">
+                <span>📋</span>
+                Scheduled Workouts
+            </h2>
+            <div id="workoutsList">
+                <!-- Scheduled workouts will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let workouts = [];
+        let currentWeekStart = new Date();
+        let selectedWorkoutType = '';
+
+        // Set current week to start of week (Sunday)
+        currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay());
+
+        function initScheduler() {
+            setDefaultDate();
+            setupWorkoutTypeSelection();
+            generateWeekCalendar();
+            updateWorkoutsList();
+            
+            // Add some sample workouts
+            const sampleWorkouts = [
+                {
+                    id: Date.now() + 1,
+                    date: '2025-06-06',
+                    time: '07:00',
+                    type: 'cardio',
+                    duration: 45,
+                    intensity: 'moderate',
+                    notes: 'Morning run in the park'
+                },
+                {
+                    id: Date.now() + 2,
+                    date: '2025-06-08',
+                    time: '18:00',
+                    type: 'strength',
+                    duration: 60,
+                    intensity: 'high',
+                    notes: 'Upper body focus - chest and arms'
+                }
+            ];
+            
+            workouts = [...sampleWorkouts];
+            updateWorkoutsList();
+            generateWeekCalendar();
+        }
+
+        function setDefaultDate() {
+            const today = new Date();
+            const dateString = today.toISOString().split('T')[0];
+            document.getElementById('workoutDate').value = dateString;
+        }
+
+        function setupWorkoutTypeSelection() {
+            const typeButtons = document.querySelectorAll('.workout-type-btn');
+            typeButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    typeButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    selectedWorkoutType = btn.dataset.type;
+                    document.getElementById('workoutType').value = selectedWorkoutType;
+                });
+            });
+        }
+
+        function generateWeekCalendar() {
+            const calendar = document.getElementById('weekCalendar');
+            const weekRange = document.getElementById('weekRange');
+            
+            calendar.innerHTML = '';
+            
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const today = new Date();
+            
+            // Update week range display
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+            
+            weekRange.textContent = `${monthNames[currentWeekStart.getMonth()]} ${currentWeekStart.getDate()}-${weekEnd.getDate()}, ${currentWeekStart.getFullYear()}`;
+            
+            for (let i = 0; i < 7; i++) {
+                const day = new Date(currentWeekStart);
+                day.setDate(currentWeekStart.getDate() + i);
+                
+                const dayWorkouts = workouts.filter(w => w.date === day.toISOString().split('T')[0]);
+                
+                const dayCard = document.createElement('div');
+                dayCard.className = 'day-card';
+                
+                if (day.toDateString() === today.toDateString()) {
+                    dayCard.classList.add('today');
+                }
+                
+                if (dayWorkouts.length > 0) {
+                    dayCard.classList.add('has-workout');
+                }
+                
+                dayCard.innerHTML = `
+                    <div class="day-name">${days[i]}</div>
+                    <div class="day-number">${day.getDate()}</div>
+                    <div class="day-workouts">
+                        ${dayWorkouts.length > 0 ? 
+                            `${dayWorkouts.length} workout${dayWorkouts.length > 1 ? 's' : ''}` : 
+                            ''
+                        }
+                        ${dayWorkouts.map(() => '<div class="workout-dot"></div>').join('')}
+                    </div>
+                `;
+                
+                dayCard.addEventListener('click', () => {
+                    const dateString = day.toISOString().split('T')[0];
+                    document.getElementById('workoutDate').value = dateString;
+                });
+                
+                calendar.appendChild(dayCard);
+            }
+        }
+
+        function updateWorkoutsList() {
+            const workoutsList = document.getElementById('workoutsList');
+            
+            if (workouts.length === 0) {
+                workoutsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏃‍♂️</div>
+                        <h3>No workouts scheduled yet</h3>
+                        <p>Start by scheduling your first workout above!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort workouts by date and time
+            const sortedWorkouts = workouts.sort((a, b) => {
+                const dateA = new Date(`${a.date} ${a.time}`);
+                const dateB = new Date(`${b.date} ${b.time}`);
+                return dateA - dateB;
+            });
+            
+            workoutsList.innerHTML = sortedWorkouts.map(workout => {
+                const workoutDate = new Date(workout.date);
+                const formattedDate = workoutDate.toLocaleDateString('en-US', { 
+                    weekday: 'short', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                
+                const typeEmojis = {
+                    cardio: '🏃',
+                    strength: '🏋️',
+                    yoga: '🧘',
+                    hiit: '⚡',
+                    pilates: '🤸',
+                    swimming: '🏊'
+                };
+                
+                return `
+                    <div class="workout-item">
+                        <div class="workout-info">
+                            <div class="workout-title">
+                                ${typeEmojis[workout.type]} ${workout.type.charAt(0).toUpperCase() + workout.type.slice(1)}
+                                <span style="font-size: 0.8em; opacity: 0.7;">(${workout.intensity})</span>
+                            </div>
+                            <div class="workout-details">
+                                <span>📅 ${formattedDate}</span>
+                                <span>⏰ ${workout.time}</span>
+                                <span>⏱️ ${workout.duration} min</span>
+                            </div>
+                            ${workout.notes ? `<div style="font-size: 0.85em; opacity: 0.8; margin-top: 5px;">${workout.notes}</div>` : ''}
+                        </div>
+                        <div class="workout-actions">
+                            <button class="action-btn edit-btn" onclick="editWorkout(${workout.id})">Edit</button>
+                            <button class="action-btn delete-btn" onclick="deleteWorkout(${workout.id})">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function deleteWorkout(id) {
+            if (confirm('Are you sure you want to delete this workout?')) {
+                workouts = workouts.filter(w => w.id !== id);
+                updateWorkoutsList();
+                generateWeekCalendar();
+            }
+        }
+
+        function editWorkout(id) {
+            const workout = workouts.find(w => w.id === id);
+            if (workout) {
+                document.getElementById('workoutDate').value = workout.date;
+                document.getElementById('workoutTime').value = workout.time;
+                document.getElementById('duration').value = workout.duration;
+                document.getElementById('intensity').value = workout.intensity;
+                document.getElementById('notes').value = workout.notes;
+                
+                // Select workout type
+                document.querySelectorAll('.workout-type-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.type === workout.type) {
+                        btn.classList.add('active');
+                        selectedWorkoutType = workout.type;
+                        document.getElementById('workoutType').value = workout.type;
+                    }
+                });
+                
+                // Remove the workout so it can be re-added with updates
+                workouts = workouts.filter(w => w.id !== id);
+                updateWorkoutsList();
+                generateWeekCalendar();
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('workoutForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            if (!selectedWorkoutType) {
+                alert('Please select a workout type!');
+                return;
+            }
+            
+            const formData = new FormData(e.target);
+            const workout = {
+                id: Date.now(),
+                date: formData.get('workoutDate') || document.getElementById('workoutDate').value,
+                time: formData.get('workoutTime') || document.getElementById('workoutTime').value,
+                type: selectedWorkoutType,
+                duration: parseInt(document.getElementById('duration').value),
+                intensity: document.getElementById('intensity').value,
+                notes: document.getElementById('notes').value
+            };
+            
+            workouts.push(workout);
+            updateWorkoutsList();
+            generateWeekCalendar();
+            
+            // Reset form
+            e.target.reset();
+            setDefaultDate();
+            document.querySelectorAll('.workout-type-btn').forEach(btn => btn.classList.remove('active'));
+            selectedWorkoutType = '';
+            document.getElementById('workoutType').value = '';
+            
+            // Success feedback
+            const btn = document.querySelector('.schedule-btn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<span>✅ Workout Scheduled!</span>';
+            btn.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+            }, 2000);
+        });
+
+        document.getElementById('prevWeek').addEventListener('click', () => {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            generateWeekCalendar();
+        });
+
+        document.getElementById('nextWeek').addEventListener('click', () => {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            generateWeekCalendar();
+        });
+
+        // Initialize the scheduler
+        initScheduler();
+    </script>
+</body>
+</html>

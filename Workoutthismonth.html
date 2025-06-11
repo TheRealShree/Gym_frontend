@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Calendar - June 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+        }
+
+        .calendar {
+            padding: 30px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .month-year {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            background: #e9ecef;
+            border-radius: 12px;
+            padding: 2px;
+        }
+
+        .day-header {
+            background: #495057;
+            color: white;
+            padding: 15px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .day-header:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        .day-header:last-child {
+            border-top-right-radius: 10px;
+        }
+
+        .day-cell {
+            background: white;
+            min-height: 100px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .day-cell:hover {
+            background: #f8f9fa;
+            transform: scale(1.02);
+            z-index: 2;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .day-number {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .other-month {
+            color: #ccc;
+        }
+
+        .today {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .today .day-number {
+            color: white;
+        }
+
+        .workout-indicator {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+
+        .strength { background: #e74c3c; }
+        .cardio { background: #3498db; }
+        .flexibility { background: #2ecc71; }
+        .rest { background: #95a5a6; }
+
+        .workout-type {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .add-workout-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(238, 90, 36, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .add-workout-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 15px 35px rgba(238, 90, 36, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 16px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 20px;
+                gap: 15px;
+            }
+            
+            .calendar {
+                padding: 20px;
+            }
+            
+            .day-cell {
+                min-height: 80px;
+                padding: 8px;
+            }
+            
+            .legend {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💪 Workout Calendar</h1>
+            <p>Stay consistent, stay strong</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="workoutsCompleted">12</div>
+                <div class="stat-label">Workouts Done</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="streakDays">5</div>
+                <div class="stat-label">Current Streak</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="restDays">3</div>
+                <div class="stat-label">Rest Days</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="goalProgress">75%</div>
+                <div class="stat-label">Monthly Goal</div>
+            </div>
+        </div>
+
+        <div class="calendar">
+            <div class="calendar-header">
+                <div class="month-nav">
+                    <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
+                    <div class="month-year" id="monthYear">June 2025</div>
+                    <button class="nav-btn" onclick="changeMonth(1)">›</button>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color strength"></div>
+                        <span>Strength</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color cardio"></div>
+                        <span>Cardio</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color flexibility"></div>
+                        <span>Flexibility</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color rest"></div>
+                        <span>Rest</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- Calendar will be generated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <button class="add-workout-btn" onclick="addWorkout()">+</button>
+
+    <script>
+        const workoutData = {
+            '2025-06-02': { type: 'strength', name: 'Upper Body' },
+            '2025-06-03': { type: 'cardio', name: 'Running' },
+            '2025-06-04': { type: 'flexibility', name: 'Yoga' },
+            '2025-06-05': { type: 'strength', name: 'Lower Body' },
+            '2025-06-06': { type: 'rest', name: 'Rest Day' },
+            '2025-06-07': { type: 'cardio', name: 'Cycling' },
+            '2025-06-09': { type: 'strength', name: 'Full Body' },
+            '2025-06-10': { type: 'flexibility', name: 'Stretching' },
+            '2025-06-11': { type: 'cardio', name: 'Swimming' },
+            '2025-06-12': { type: 'strength', name: 'Push Day' },
+            '2025-06-13': { type: 'rest', name: 'Recovery' },
+            '2025-06-14': { type: 'cardio', name: 'HIIT' },
+            '2025-06-16': { type: 'strength', name: 'Pull Day' },
+            '2025-06-17': { type: 'flexibility', name: 'Pilates' },
+            '2025-06-18': { type: 'cardio', name: 'Jogging' }
+        };
+
+        let currentMonth = 5; // June (0-indexed)
+        let currentYear = 2025;
+
+        function generateCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const monthYear = document.getElementById('monthYear');
+            
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            
+            monthYear.textContent = `${months[currentMonth]} ${currentYear}`;
+            
+            grid.innerHTML = '';
+            
+            // Add day headers
+            days.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'day-header';
+                header.textContent = day;
+                grid.appendChild(header);
+            });
+            
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
+            
+            // Previous month's trailing days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const day = daysInPrevMonth - i;
+                const cell = createDayCell(day, true);
+                grid.appendChild(cell);
+            }
+            
+            // Current month's days
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cell = createDayCell(day, false);
+                
+                // Check if it's today
+                if (currentYear === today.getFullYear() && 
+                    currentMonth === today.getMonth() && 
+                    day === today.getDate()) {
+                    cell.classList.add('today');
+                }
+                
+                grid.appendChild(cell);
+            }
+            
+            // Next month's leading days
+            const totalCells = grid.children.length - 7; // Subtract headers
+            const remainingCells = 42 - totalCells; // 6 rows × 7 days = 42
+            for (let day = 1; day <= remainingCells; day++) {
+                const cell = createDayCell(day, true);
+                grid.appendChild(cell);
+            }
+            
+            updateStats();
+        }
+
+        function createDayCell(day, isOtherMonth) {
+            const cell = document.createElement('div');
+            cell.className = 'day-cell';
+            if (isOtherMonth) cell.classList.add('other-month');
+            
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'day-number';
+            dayNumber.textContent = day;
+            cell.appendChild(dayNumber);
+            
+            if (!isOtherMonth) {
+                const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const workout = workoutData[dateKey];
+                
+                if (workout) {
+                    const indicator = document.createElement('div');
+                    indicator.className = `workout-indicator ${workout.type}`;
+                    cell.appendChild(indicator);
+                    
+                    const workoutType = document.createElement('div');
+                    workoutType.className = 'workout-type';
+                    workoutType.textContent = workout.name;
+                    cell.appendChild(workoutType);
+                }
+                
+                cell.addEventListener('click', () => toggleWorkout(dateKey, cell));
+            }
+            
+            return cell;
+        }
+
+        function toggleWorkout(dateKey, cell) {
+            const workoutTypes = ['strength', 'cardio', 'flexibility', 'rest'];
+            const workoutNames = {
+                'strength': ['Upper Body', 'Lower Body', 'Full Body', 'Push Day', 'Pull Day'],
+                'cardio': ['Running', 'Cycling', 'Swimming', 'HIIT', 'Jogging'],
+                'flexibility': ['Yoga', 'Stretching', 'Pilates', 'Mobility', 'Recovery'],
+                'rest': ['Rest Day', 'Recovery', 'Active Rest']
+            };
+            
+            if (workoutData[dateKey]) {
+                // Cycle through workout types
+                const currentIndex = workoutTypes.indexOf(workoutData[dateKey].type);
+                const nextIndex = (currentIndex + 1) % workoutTypes.length;
+                const nextType = workoutTypes[nextIndex];
+                const nextName = workoutNames[nextType][Math.floor(Math.random() * workoutNames[nextType].length)];
+                
+                workoutData[dateKey] = { type: nextType, name: nextName };
+            } else {
+                // Add new workout
+                const randomType = workoutTypes[Math.floor(Math.random() * workoutTypes.length)];
+                const randomName = workoutNames[randomType][Math.floor(Math.random() * workoutNames[randomType].length)];
+                workoutData[dateKey] = { type: randomType, name: randomName };
+            }
+            
+            generateCalendar();
+        }
+
+        function changeMonth(direction) {
+            currentMonth += direction;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            generateCalendar();
+        }
+
+        function updateStats() {
+            const currentMonthWorkouts = Object.keys(workoutData).filter(key => {
+                const date = new Date(key);
+                return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+            });
+            
+            const workoutsCompleted = currentMonthWorkouts.filter(key => 
+                workoutData[key].type !== 'rest'
+            ).length;
+            
+            const restDays = currentMonthWorkouts.filter(key => 
+                workoutData[key].type === 'rest'
+            ).length;
+            
+            document.getElementById('workoutsCompleted').textContent = workoutsCompleted;
+            document.getElementById('restDays').textContent = restDays;
+            document.getElementById('goalProgress').textContent = Math.min(100, Math.round((workoutsCompleted / 20) * 100)) + '%';
+        }
+
+        function addWorkout() {
+            const today = new Date();
+            const dateKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            
+            if (!workoutData[dateKey]) {
+                workoutData[dateKey] = { type: 'strength', name: 'Quick Workout' };
+                generateCalendar();
+            }
+        }
+
+        // Initialize calendar
+        generateCalendar();
+    </script>
+</body>
+</html>

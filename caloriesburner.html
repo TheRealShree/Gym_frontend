@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calories Burned Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .fire-icon {
+            font-size: 2rem;
+            animation: flicker 2s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { transform: scale(1) rotate(-2deg); }
+            100% { transform: scale(1.1) rotate(2deg); }
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .activity-card {
+            background: #f8f9fa;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .activity-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .activity-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .activity-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .result.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .calories-display {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 10px 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .result-details {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 15px;
+            line-height: 1.5;
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon::before {
+            content: attr(data-icon);
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            color: #999;
+            z-index: 1;
+        }
+
+        .input-icon input {
+            padding-left: 40px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .activity-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <span class="fire-icon">🔥</span>
+                Calories Burned Calculator
+            </h1>
+            <p class="subtitle">Track your workout and estimate calories burned</p>
+        </div>
+
+        <form id="calorieForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="weight">Weight</label>
+                    <div class="input-icon" data-icon="⚖️">
+                        <input type="number" id="weight" placeholder="70" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="unit">Unit</label>
+                    <select id="unit">
+                        <option value="kg">Kilograms</option>
+                        <option value="lbs">Pounds</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="duration">Duration (minutes)</label>
+                <div class="input-icon" data-icon="⏱️">
+                    <input type="number" id="duration" placeholder="30" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Select Activity</label>
+                <div class="activity-grid">
+                    <div class="activity-card" data-met="8" data-activity="running">
+                        <span class="activity-icon">🏃‍♂️</span>
+                        <div class="activity-name">Running</div>
+                    </div>
+                    <div class="activity-card" data-met="4" data-activity="walking">
+                        <span class="activity-icon">🚶‍♂️</span>
+                        <div class="activity-name">Walking</div>
+                    </div>
+                    <div class="activity-card" data-met="6" data-activity="cycling">
+                        <span class="activity-icon">🚴‍♂️</span>
+                        <div class="activity-name">Cycling</div>
+                    </div>
+                    <div class="activity-card" data-met="5" data-activity="swimming">
+                        <span class="activity-icon">🏊‍♂️</span>
+                        <div class="activity-name">Swimming</div>
+                    </div>
+                    <div class="activity-card" data-met="7" data-activity="basketball">
+                        <span class="activity-icon">⛹️‍♂️</span>
+                        <div class="activity-name">Basketball</div>
+                    </div>
+                    <div class="activity-card" data-met="3" data-activity="yoga">
+                        <span class="activity-icon">🧘‍♀️</span>
+                        <div class="activity-name">Yoga</div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="calculate-btn">
+                Calculate Calories Burned 🔥
+            </button>
+        </form>
+
+        <div id="result" class="result">
+            <h3>Calories Burned</h3>
+            <div id="caloriesDisplay" class="calories-display">0</div>
+            <div id="resultDetails" class="result-details"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedActivity = null;
+        let selectedMET = 0;
+
+        // Activity card selection
+        document.querySelectorAll('.activity-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove selected class from all cards
+                document.querySelectorAll('.activity-card').forEach(c => c.classList.remove('selected'));
+                
+                // Add selected class to clicked card
+                this.classList.add('selected');
+                
+                // Store selected activity data
+                selectedActivity = this.dataset.activity;
+                selectedMET = parseFloat(this.dataset.met);
+            });
+        });
+
+        // Form submission
+        document.getElementById('calorieForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!selectedActivity) {
+                alert('Please select an activity!');
+                return;
+            }
+            
+            const weight = parseFloat(document.getElementById('weight').value);
+            const duration = parseFloat(document.getElementById('duration').value);
+            const unit = document.getElementById('unit').value;
+            
+            if (!weight || !duration) {
+                alert('Please fill in all fields!');
+                return;
+            }
+            
+            // Convert weight to kg if needed
+            let weightInKg = weight;
+            if (unit === 'lbs') {
+                weightInKg = weight * 0.453592;
+            }
+            
+            // Calculate calories using MET formula: Calories = MET × weight(kg) × time(hours)
+            const timeInHours = duration / 60;
+            const caloriesBurned = Math.round(selectedMET * weightInKg * timeInHours);
+            
+            // Display result
+            displayResult(caloriesBurned, selectedActivity, duration, weight, unit);
+        });
+
+        function displayResult(calories, activity, duration, weight, unit) {
+            const resultDiv = document.getElementById('result');
+            const caloriesDisplay = document.getElementById('caloriesDisplay');
+            const resultDetails = document.getElementById('resultDetails');
+            
+            // Animate the calorie count
+            animateCounter(caloriesDisplay, calories);
+            
+            resultDetails.innerHTML = `
+                <strong>${activity.charAt(0).toUpperCase() + activity.slice(1)}</strong> for ${duration} minutes<br>
+                Body weight: ${weight} ${unit}<br>
+                <small>Calculation based on MET (Metabolic Equivalent) values</small>
+            `;
+            
+            resultDiv.classList.add('show');
+        }
+
+        function animateCounter(element, target) {
+            let current = 0;
+            const increment = target / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current);
+                }
+            }, 30);
+        }
+
+        // Auto-select running as default
+        document.querySelector('[data-activity="running"]').click();
+    </script>
+</body>
+</html>
